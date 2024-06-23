@@ -1,0 +1,23 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateLoanAmountsTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('loan_amounts', function (Blueprint $table) {
+            $table->id();
+            $table->decimal('amount', 8, 2);
+            $table->integer('term'); // in weeks
+            $table->timestamps();
+        });
+    }
+
+    public function down()
+    {
+        Schema::dropIfExists('loan_amounts');
+    }
+}
