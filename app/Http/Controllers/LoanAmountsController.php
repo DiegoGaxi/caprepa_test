@@ -79,9 +79,12 @@ class LoanAmountsController extends Controller
             // Obtener los term_ids actuales asociados al monto de préstamo
             $currentTermIds = $montoPrestamo->loan_amount_terms()->pluck('term_id')->toArray();
 
-            // Verificar los term_ids existentes en la base de datos
-            $existingTermIds = LoanAmountTerm::whereIn('term_id', $selectedTermIds)->pluck('term_id')->toArray();
-
+            // Verificar los term_ids existentes para este monto de préstamo específico
+            $existingTermIds = LoanAmountTerm::where('loan_amount_id', $montoPrestamo->id)
+            ->whereIn('term_id', $selectedTermIds)
+            ->pluck('term_id')
+            ->toArray();
+            
             // Calcular los term_ids que se van a agregar (los que no existen)
             $termsToAttach = array_diff($selectedTermIds, $currentTermIds);
 
