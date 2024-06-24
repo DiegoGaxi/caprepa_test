@@ -11,7 +11,6 @@ class CreateLoanAmountsTable extends Migration
         Schema::create('loan_amounts', function (Blueprint $table) {
             $table->id();
             $table->decimal('amount', 8, 2);
-            $table->integer('term'); // in weeks
             $table->timestamps();
         });
     }
