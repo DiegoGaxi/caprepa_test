@@ -23,7 +23,7 @@ class Loan extends Model
 
     public function loan_amount_term()
     {
-        return $this->belongsTo(loanAmountTerm::class);
+        return $this->belongsTo(LoanAmountTerm::class);
     }
 
     public static function filter(Request $request)
