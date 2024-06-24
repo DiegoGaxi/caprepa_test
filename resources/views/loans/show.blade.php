@@ -29,7 +29,7 @@
                 @foreach ($amortizationSchedule['schedule'] as $payment)
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $payment['installment'] }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $payment['payment_date']->format('Y-m-d') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $payment['payment_date']->format('d-m-Y') }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${{ number_format($payment['payment_amount'], 2) }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${{ number_format($payment['interest'], 2) }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${{ number_format($payment['principal'], 2) }}</td>

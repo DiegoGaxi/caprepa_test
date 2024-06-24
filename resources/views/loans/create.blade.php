@@ -33,7 +33,7 @@
     </form>
 
     <script>
-        // Variables con opciones de términos según el monto seleccionado
+        // Variables con opciones de plazos según el monto seleccionado
         var termsByAmount = @json($termsByAmount);
         
         // Función para actualizar las opciones de plazo según el monto seleccionado
@@ -42,7 +42,7 @@
             var termSelect = document.getElementById('loan_amount_term_id');
             termSelect.innerHTML = '';
 
-            // Verificar si existen términos para el monto seleccionado
+            // Verificar si existen plazos para el monto seleccionado
             if (termsByAmount.hasOwnProperty(loanAmountId)) {
                 // Llenar select con las nuevas opciones
                 Object.keys(termsByAmount[loanAmountId]).forEach(function (termId) {
@@ -50,8 +50,8 @@
                     console.log(loanAmountId);
                     console.log(termId);
                     console.log(termsByAmount[loanAmountId][termId]);
-                    option.value = termId; // Valor del option es el id del término
-                    option.textContent = termsByAmount[loanAmountId][termId].term + ' quincenas'; // Texto del option es el término más 'quincenas'
+                    option.value = termId; // Valor del option es el id del plazo
+                    option.textContent = termsByAmount[loanAmountId][termId].term + ' quincenas'; // Texto del option es el plazo más 'quincenas'
                     termSelect.appendChild(option);
                 });
             }

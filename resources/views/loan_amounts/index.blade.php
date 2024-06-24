@@ -1,4 +1,3 @@
-<!-- resources/views/loan_amounts/index.blade.php -->
 
 @extends('layouts.prestamos')
 

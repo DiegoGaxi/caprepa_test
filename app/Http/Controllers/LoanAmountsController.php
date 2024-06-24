@@ -6,6 +6,7 @@ use App\Models\LoanAmount;
 use App\Models\Term;
 use App\Models\LoanAmountTerm;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class LoanAmountsController extends Controller
 {
@@ -18,24 +19,17 @@ class LoanAmountsController extends Controller
 
     public function create()
     {
-        // Método para mostrar el formulario de creación de monto de préstamo
         // obtener plazos de prestamo
         $terms = Term::all();
         return view('loan_amounts.create', compact('terms'));
     }
 
-    /**
-     * Almacena un nuevo monto de préstamo y sus términos.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $request->validate([
             'amount' => 'required|numeric|min:0|unique:loan_amounts,amount,' . $request->amount,
             'term_ids' => 'required|array', // Validar que term_ids sea un array
-            'term_ids.*' => 'exists:terms,id', // Validar que todos los term_ids existan en la tabla loan_amount_terms
+            'term_ids.*' => 'exists:terms,id', // Validar que todos los term_ids existan en la tabla terms
         ]);
 
         // Crear el LoanAmount
@@ -45,7 +39,7 @@ class LoanAmountsController extends Controller
 
         $selectedTerms = $request->input('term_ids');
         
-        // Añadir términos al LoanAmount
+        // Añadir plazos al LoanAmount
         foreach ($selectedTerms as $termId) {
             LoanAmountTerm::create([
                 'loan_amount_id' => $loanAmount->id,
@@ -71,36 +65,55 @@ class LoanAmountsController extends Controller
     public function update(Request $request, LoanAmount $montoPrestamo)
     {
         $request->validate([
-            // amount no repetido
             'amount' => 'required|numeric|min:0',
+            'term_ids' => 'array',
         ]);
-
-        // Actualizar el monto de préstamo
-        $montoPrestamo->update([
-            'amount' => $request->amount,
-        ]);
-
-        // Obtener los term_ids seleccionados del formulario
-        $selectedTermIds = $request->input('term_ids');
-
-        // Actualizar los términos asociados al monto de préstamo
-        $montoPrestamo->loan_amount_terms()->delete(); // Eliminar todos los términos existentes
-
-        foreach ($selectedTermIds as $termId) {
-            LoanAmountTerm::create([
-                'loan_amount_id' => $montoPrestamo->id,
-                'term_id' => $termId,
+    
+        try {
+            $montoPrestamo->update([
+                'amount' => $request->amount,
             ]);
+    
+            $selectedTermIds = $request->input('term_ids', []);
+    
+            $existingTermIds = LoanAmountTerm::whereIn('id', $selectedTermIds)->pluck('id')->toArray();
+            
+            // Verificar si todos los term_ids seleccionados existen en la base de datos
+            if (count($selectedTermIds) !== count($existingTermIds)) {
+                throw new \Exception('Uno o más plazos seleccionados no se pueden eliminar.');
+            }
+    
+            // Obtener los term_ids actuales asociados al monto de préstamo
+            $currentTermIds = $montoPrestamo->loan_amount_terms()->pluck('term_id')->toArray();
+    
+            // Calcular los term_ids que se van a agregar y los que se van a eliminar
+            $termsToAttach = array_diff($selectedTermIds, $currentTermIds);
+            $termsToDetach = array_diff($currentTermIds, $selectedTermIds);
+    
+            // Agregar los nuevos term_ids
+            foreach ($termsToAttach as $termId) {
+                LoanAmountTerm::create([
+                    'loan_amount_id' => $montoPrestamo->id,
+                    'term_id' => $termId,
+                ]);
+            }
+    
+            // Eliminar los term_ids que ya no están seleccionados
+            if (!empty($termsToDetach)) {
+                $montoPrestamo->loan_amount_terms()->whereIn('term_id', $termsToDetach)->delete();
+            }
+    
+            return redirect()->route('loan_amounts.index')
+                             ->with('success', 'Monto de préstamo actualizado correctamente.');
+    
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
-
-        return redirect()->route('loan_amounts.index')
-                         ->with('success', 'Monto de préstamo actualizado correctamente.');
     }
-
+    
     public function destroy(LoanAmount $montoPrestamo)
     {
         $montoPrestamo->delete();
-
         return redirect()->route('loan_amounts.index')
                          ->with('success', 'Monto de préstamo eliminado exitosamente.');
     }
