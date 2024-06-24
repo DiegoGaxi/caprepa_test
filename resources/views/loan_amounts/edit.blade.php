@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="flex justify-start">
-        <a href="{{ url()->previous() }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded ml-2">Volver</a>
+        <a href="{{ route('loan_amounts.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded ml-2">Volver</a>
     </div>
     
     <h1>Editar Monto de Préstamo</h1>

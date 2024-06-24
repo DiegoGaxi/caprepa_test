@@ -1,7 +1,7 @@
 @extends('layouts.prestamos')
 
 @section('content')
-    <a href="{{ url()->previous() }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded ml-2">Volver</a>
+    <a href="{{ route('clients.index') }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded ml-2">Volver</a>
     <h1>Crear Nuevo Cliente</h1>
 
     <form action="{{ route('clients.store') }}" method="POST">

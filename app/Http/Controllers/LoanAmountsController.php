@@ -68,48 +68,50 @@ class LoanAmountsController extends Controller
             'amount' => 'required|numeric|min:0',
             'term_ids' => 'array',
         ]);
-    
+
         try {
             $montoPrestamo->update([
                 'amount' => $request->amount,
             ]);
-    
+
             $selectedTermIds = $request->input('term_ids', []);
-    
-            $existingTermIds = LoanAmountTerm::whereIn('id', $selectedTermIds)->pluck('id')->toArray();
-            
-            // Verificar si todos los term_ids seleccionados existen en la base de datos
-            if (count($selectedTermIds) !== count($existingTermIds)) {
-                throw new \Exception('Uno o más plazos seleccionados no se pueden eliminar.');
-            }
-    
+
             // Obtener los term_ids actuales asociados al monto de préstamo
             $currentTermIds = $montoPrestamo->loan_amount_terms()->pluck('term_id')->toArray();
-    
-            // Calcular los term_ids que se van a agregar y los que se van a eliminar
+
+            // Verificar los term_ids existentes en la base de datos
+            $existingTermIds = LoanAmountTerm::whereIn('term_id', $selectedTermIds)->pluck('term_id')->toArray();
+
+            // Calcular los term_ids que se van a agregar (los que no existen)
             $termsToAttach = array_diff($selectedTermIds, $currentTermIds);
+
+            // Calcular los term_ids que se van a eliminar (los que ya no están seleccionados)
             $termsToDetach = array_diff($currentTermIds, $selectedTermIds);
-    
+
             // Agregar los nuevos term_ids
             foreach ($termsToAttach as $termId) {
-                LoanAmountTerm::create([
-                    'loan_amount_id' => $montoPrestamo->id,
-                    'term_id' => $termId,
-                ]);
+                // Verificar si el term_id ya existe en la base de datos antes de crear
+                if (!in_array($termId, $existingTermIds)) {
+                    LoanAmountTerm::create([
+                        'loan_amount_id' => $montoPrestamo->id,
+                        'term_id' => $termId,
+                    ]);
+                }
             }
-    
+
             // Eliminar los term_ids que ya no están seleccionados
             if (!empty($termsToDetach)) {
                 $montoPrestamo->loan_amount_terms()->whereIn('term_id', $termsToDetach)->delete();
             }
-    
+
             return redirect()->route('loan_amounts.index')
-                             ->with('success', 'Monto de préstamo actualizado correctamente.');
-    
+                            ->with('success', 'Monto de préstamo actualizado correctamente.');
+
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }
+
     
     public function destroy(LoanAmount $montoPrestamo)
     {
