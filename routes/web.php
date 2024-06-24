@@ -30,3 +30,5 @@ Route::get('/terms', [TermController::class, 'index'])->name('terms.index');
 Route::get('/terms/create', [TermController::class, 'create'])->name('terms.create');
 Route::post('/terms/terms', [TermController::class, 'store'])->name('terms.store');
 Route::delete('/terms/terms/{term}', [TermController::class, 'destroy'])->name('terms.destroy');
+
+?>
