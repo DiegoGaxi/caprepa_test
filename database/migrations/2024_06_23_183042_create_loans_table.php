@@ -12,6 +12,7 @@ class CreateLoansTable extends Migration
             $table->id();
             $table->foreignId('client_id')->constrained();
             $table->foreignId('loan_amount_id')->constrained();
+            $table->foreignId('loan_amount_term_id')->constrained();
             $table->timestamps();
         });
     }

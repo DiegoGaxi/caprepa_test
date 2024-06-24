@@ -5,11 +5,11 @@
         <a href="{{ url()->previous() }}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded ml-2">Volver</a>
     </div>
 
-    <h1>Detalles del Préstamo</h1>
+    <h1>Amortizacion del Préstamo</h1>
 
     <p><strong>Cliente:</strong> {{ $loan->client->name }}</p>
-    <p><strong>Monto del Préstamo:</strong> {{ $loan->loanAmount->amount }}</p>
-    <p><strong>Plazo:</strong> {{ $loan->loanAmount->term }} meses</p>
+    <p><strong>Monto del Préstamo:</strong> ${{ $loan->loanAmount->amount }}</p>
+    <p><strong>Plazo:</strong> {{ $loan->loan_amount_term->term->term }} meses</p>
 
     <div class="mt-8">
 
@@ -18,11 +18,11 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs text-gray-600 uppercase tracking-wider">No. Pago</th>
-                    <th class="px-6 py-3 text-left text-xs text-gray-600 uppercase tracking-wider">Fecha</th>
-                    <th class="px-6 py-3 text-left text-xs text-gray-600 uppercase tracking-wider">Préstamo</th>
-                    <th class="px-6 py-3 text-left text-xs text-gray-600 uppercase tracking-wider">Interés</th>
-                    <th class="px-6 py-3 text-left text-xs text-gray-600 uppercase tracking-wider">Abono</th>
+                    <th class="">No. Pago</th>
+                    <th class="">Fecha</th>
+                    <th class="">Préstamo</th>
+                    <th class="">Interés</th>
+                    <th class="">Abono</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">

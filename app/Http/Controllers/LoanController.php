@@ -9,18 +9,45 @@ use Illuminate\Http\Request;
 
 class LoanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $loans = Loan::with('client', 'loanAmount')->get();
+        $query = Loan::query();
+
+        if ($request->has('filter')) {
+            $filter = $request->input('filter');
+            $query->whereHas('client', function ($q) use ($filter) {
+                $q->where('name', 'like', '%' . $filter . '%');
+            })->orWhereHas('loanAmount', function ($q) use ($filter) {
+                $q->where('amount', 'like', '%' . $filter . '%');
+            })->orWhereHas('loan_amount_term', function ($q) use ($filter) {
+                $q->whereHas('term', function ($qq) use ($filter) {
+                    $qq->where('term', 'like', '%' . $filter . '%');
+                });
+            });
+        }
+
+        $loans = $query->with('client', 'loanAmount', 'loan_amount_term.term')->get();
+
         return view('loans.index', compact('loans'));
     }
 
     public function create()
     {
         $clients = Client::all();
-        $loanAmounts = LoanAmount::all()->groupBy('amount'); // Agrupar por cantidad de préstamo
+        $loanAmounts = LoanAmount::with('loan_amount_terms')->get(); // Obtener todos los montos de préstamo con sus términos
         $termsByAmount = $this->getTermsByLoanAmounts($loanAmounts); // Obtener términos por cantidad de préstamo
         return view('loans.create', compact('clients', 'loanAmounts', 'termsByAmount'));
+    }
+
+    private function getTermsByLoanAmounts($loanAmounts)
+    {
+        $termsByAmount = [];
+
+        foreach ($loanAmounts as $loanAmount) {
+            $termsByAmount[$loanAmount->id] = $loanAmount->loan_amount_terms->pluck('term', 'id');
+        }
+
+        return $termsByAmount;
     }
 
     public function store(Request $request)
@@ -28,7 +55,7 @@ class LoanController extends Controller
         $request->validate([
             'client_id' => 'required|exists:clients,id',
             'loan_amount_id' => 'required|exists:loan_amounts,id',
-            'term' => 'required|numeric|min:1', // Validar que el plazo sea un número positivo
+            'loan_amount_term_id' => 'required|numeric|min:1', // Validar que el plazo sea un número positivo
         ]);
 
         Loan::create($request->all());
@@ -36,18 +63,9 @@ class LoanController extends Controller
         return redirect()->route('loans.index');
     }
 
-    private function getTermsByLoanAmounts($loanAmounts)
-    {
-      $termsByAmount = $loanAmounts->mapWithKeys(function ($items) {
-         return [$items->first()->id => $items->pluck('term')];
-      })->toArray();
-
-      return $termsByAmount;
-    }
-
     public function show($id)
     {
-        $loan = Loan::with('client', 'loanAmount')->findOrFail($id);
+        $loan = Loan::with('client', 'loanAmount', 'loan_amount_term')->findOrFail($id);
         $amortizationSchedule = $this->generateAmortizationSchedule($loan);
         return view('loans.show', compact('loan', 'amortizationSchedule'));
     }
@@ -56,7 +74,7 @@ class LoanController extends Controller
       {
          $schedule = [];
          $remainingAmount = $loan->loanAmount->amount;
-         $term = $loan->loanAmount->term;
+         $term = $loan->loan_amount_term->term->term;
          $interestRate = 11; // Tasa de interés mensual
 
          $paymentAmount = $remainingAmount / $term;

@@ -17,9 +17,17 @@
             @enderror
         </div>
         <div class="mb-4">
-            <label for="term" class="block text-gray-700 font-bold mb-2">Plazo (en meses):</label>
-            <input type="number" name="term" id="term" class="form-input rounded-md shadow-sm w-full" value="{{ old('term') }}" required>
-            @error('term')
+            <label class="block text-gray-700 font-bold mb-2">Plazos (en meses):</label>
+            @foreach($terms as $term)
+                <div class="flex items-center">
+                    <input type="checkbox" name="term_ids[]" id="term_{{ $term->id }}" value="{{ $term->id }}" class="form-checkbox h-5 w-5 text-blue-600">
+                    <label for="term_{{ $term->id }}" class="ml-2">{{ $term->term }}</label>
+                </div>
+            @endforeach
+            @error('term_ids')
+                <div class="text-red-500">{{ $message }}</div>
+            @enderror
+            @error('term_ids.*')
                 <div class="text-red-500">{{ $message }}</div>
             @enderror
         </div>

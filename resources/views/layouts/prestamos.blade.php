@@ -10,8 +10,9 @@
         @import url('https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css');
     </style>
 </head>
-<body class="font-sans antialiased">
-    <div class="container mx-auto mt-8">
+<body>
+    <div class="logo"></div>
+    <div class="card mx-auto mt-5">
         @yield('content')
     </div>
 </body>

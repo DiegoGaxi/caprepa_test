@@ -9,7 +9,7 @@ class Loan extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['client_id', 'loan_amount_id'];
+    protected $fillable = ['client_id', 'loan_amount_id', 'loan_amount_term_id'];
 
     public function client()
     {
@@ -19,5 +19,10 @@ class Loan extends Model
     public function loanAmount()
     {
         return $this->belongsTo(LoanAmount::class);
+    }
+
+    public function loan_amount_term()
+    {
+        return $this->belongsTo(loanAmountTerm::class);
     }
 }
